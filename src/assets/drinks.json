@@ -1,0 +1,148 @@
+[
+  {
+    "name": "Caramel Latte",
+    "image": "images/vanillaLatte.png",
+    "description": "Briggo's signature espresso mixed with lush, freshly-steamed milk and caramel.",
+    "tags": ["coffee", "hot", "caffeinated", "latte"],
+    "caffeinated": true,
+    "milk": "2%",
+    "configs": [
+      {
+        "size": "md",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 3,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 4.49
+      },
+      {
+        "size": "lg",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 4,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 5.19
+      }
+    ]
+  },
+  {
+    "name": "Mocha",
+    "image": null,
+    "description": "Gourmet chocolate, espresso, and freshly-steamed milk.",
+    "tags": ["coffee", "hot", "caffeinated", "mocha"],
+    "caffeinated": true,
+    "milk": "2%",
+    "configs": [
+      {
+        "size": "md",
+        "flavors": {
+          "chocolate": 4,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 4.79
+      },
+      {
+        "size": "lg",
+        "flavors": {
+          "chocolate": 4,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 5.29
+      }
+    ]
+  },
+  {
+    "name": "Cappuccino",
+    "image": null,
+    "description": "Delicious Briggo espresso topped with expertly-frothed milk.",
+    "tags": ["coffee", "hot", "caffeinated", "cappuccino"],
+    "caffeinated": true,
+    "milk": "2%",
+    "configs": [
+      {
+        "size": "sm",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 3.99
+      }
+    ]
+  },
+  {
+    "name": "Americano",
+    "image": null,
+    "description": "Briggo espresso mixed with hot water; slightly stronger than regular coffee.",
+    "tags": ["coffee", "hot", "caffeinated", "americano"],
+    "caffeinated": true,
+    "milk": false,
+    "configs": [
+      {
+        "size": "md",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 3,
+        "price": 4.79
+      }
+    ]
+  },
+  {
+    "name": "Coffee",
+    "image": null,
+    "description": "Briggo's smooth and lively blend of high-grown Latin American coffees.",
+    "tags": ["coffee", "hot", "caffeinated", "black_coffee"],
+    "caffeinated": true,
+    "milk": false,
+    "configs": [
+      {
+        "size": "md",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 2,
+        "price": 2.59
+      },
+      {
+        "size": "lg",
+        "flavors": {
+          "chocolate": 0,
+          "caramel": 0,
+          "vanilla": 0,
+          "sugarFreeVanilla": 0
+        },
+        "sweeteners": { "sugar": 0, "stevia": 0 },
+        "espresso": 3,
+        "price": 2.89
+      }
+    ]
+  }
+]

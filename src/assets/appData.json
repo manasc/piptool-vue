@@ -1,0 +1,53 @@
+{
+  "title": "Perfect is Personal",
+  "copyright": "Copyright Briggo 2019",
+  "pumpSize": { "ml": 8, "oz": 0.27 },
+  "drinkSize": {
+    "small": {
+      "ml": 237,
+      "oz": 8
+    },
+    "medium": {
+      "ml": 355,
+      "oz": 12
+    },
+    "large": {
+      "ml": 473,
+      "oz": 16
+    }
+  },
+  "panels": {
+    "base": {
+      "title": "Base Drink",
+      "emptyMsg": ""
+    },
+    "visual": {
+      "title": "Your Drink",
+      "emptyMsg": "Choose a base to customize."
+    },
+    "ingredients": {
+      "title": "Ingredients",
+      "emptyMsg": "Choose a drink to see its ingredients."
+    }
+  },
+  "ingredients": {
+    "flavors": [
+      { "name": "chocolate", "color": "#7B341E", "show": false },
+      { "name": "caramel", "color": "#B7791F", "show": false },
+      { "name": "vanilla", "color": "#FED7D7", "show": false },
+      { "name": "sugarFreeVanilla", "color": "#B2F5EA", "show": false }
+    ],
+    "water": { "color": "#4299E1", "show": true },
+    "milk": {
+      "color": "#FFFDD0",
+      "options": ["whole", "2%", "1%", "skim", "almond"],
+      "show": true
+    },
+    "espresso": { "color": "#744210", "show": true },
+    "sweeteners": [
+      { "name": "sugar", "color": "#B2F5EA", "show": false },
+      { "name": "stevia", "color": "#C3DAFE", "show": false }
+    ]
+  },
+  "temps": ["hot", "less hot", "cold"]
+}
