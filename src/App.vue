@@ -6,7 +6,7 @@
         <v-divider class="mt-2 mb-10"></v-divider>
         <router-view></router-view>
       </v-container>
-      <v-container
+      <!-- <v-container
         v-if="$store.state.customerData.baseDrink"
         class="py-10 my-10"
       >
@@ -19,7 +19,7 @@
             </v-card>
           </v-col>
         </v-row>
-      </v-container>
+      </v-container> -->
     </v-main>
   </v-app>
 </template>

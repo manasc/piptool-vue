@@ -1,5 +1,8 @@
 <template>
-  <div id="visualizer" v-bind:style="style.canvas"></div>
+  <div :style="threeBoxStyle">
+    <div class="text-subtitle-2" :style="hoverObjectStyle">{{ currentObjectName }}</div>
+    <div id="visualizer" :style="style.canvas"></div>
+  </div>
 </template>
 
 <script>
@@ -22,11 +25,21 @@ export default {
       camera: null,
       multiplier: 10,
       currentTween: null,
+      threeBoxStyle: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+      },
+      hoverObjectStyle: {
+        position: "absolute",
+        top: "2rem",
+      },
 
       // for interactivity
       fallBackColor: null,
       raycaster: null,
       pointer: null,
+      currentObjectName: null,
       currentObject: null,
       currentObjectColor: null,
     };
@@ -62,7 +75,11 @@ export default {
     },
     "customerData.temperature": {
       handler: function (val, old) {
-        this.createStack();
+        if (this.meshArr) {
+          this.meshArr.forEach((mesh) =>
+            this.setEmissiveColor(mesh.material, true),
+          );
+        }
       },
     },
   },
@@ -97,9 +114,9 @@ export default {
 
     // set up lights
     const light1 = new THREE.SpotLight(0xffffff);
-    light1.castShadow = true;
     light1.intensity = 1;
-    light1.position.set(0, 2000, 2000);
+    light1.penumbra = 20;
+    light1.position.set(0, 2500, 2500);
 
     // set up shadow
     light1.castShadow = true;
@@ -108,24 +125,26 @@ export default {
     light1.shadow.camera.near = 500;
     light1.shadow.camera.far = 4000;
     light1.shadow.camera.fov = 30;
-    light1.shadow.camera.focus = 30;
+    light1.shadow.radius = 10;
+
     light1.lookAt(this.meshArr[0].position);
 
     this.scene.add(light1);
     // this.scene.add(new THREE.SpotLightHelper(light1, 5));
 
     const light2 = new THREE.SpotLight(0xffffff);
-    light2.position.set(2000, 2000, 1000);
+    light2.position.set(2500, 2000, 1000);
     light2.intensity = 0.5;
 
     this.scene.add(light2);
     // this.scene.add(new THREE.SpotLightHelper(light2, 5));
 
     // create a plane
-    var planeGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+    var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
     var planeMaterial = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = THREE.Math.degToRad(90);
+    plane.position.y = -1;
     // plane.castShadow = true;
     plane.receiveShadow = true;
     this.scene.add(plane);
@@ -141,13 +160,17 @@ export default {
     this.camera = new THREE.OrthographicCamera(
       canvasWidth / -1.25,
       canvasWidth / 1.25,
-      canvasHeight / 1,
-      canvasHeight / -1.5,
+      canvasHeight / 1.25,
+      canvasHeight / -1.25,
       0,
-      6000,
+      10000,
     );
     this.camera.position.set(3000, 3000, 3000);
-    this.camera.lookAt(this.meshArr[0].position);
+    this.camera.lookAt(
+      this.meshArr[0].position.x,
+      this.meshArr[0].position.y + 110,
+      this.meshArr[0].position.z,
+    );
 
     // helpers
     // this.scene.add(new THREE.AxesHelper(250));
@@ -181,6 +204,7 @@ export default {
         if (this.intersect[0].object !== this.currentObject) {
           // remove current object styling
           if (this.currentObject) {
+            this.currentObjectName = null;
             this.currentObject.material.emissive.setHex(this.fallBackColor);
             this.currentObject.material.emissiveIntensity =
               this.fallBackIntensity;
@@ -188,8 +212,9 @@ export default {
 
           // set new object as current
           this.currentObject = this.intersect[0].object;
+          this.currentObjectName = this.currentObject.name;
           this.currentObject.material.emissive.setHex(0xffffff);
-          this.currentObject.material.emissiveIntensity = 0.2;
+          this.currentObject.material.emissiveIntensity = 0.25;
 
           this.renderer.render(this.scene, this.camera);
         }
@@ -202,6 +227,7 @@ export default {
 
           this.currentObject = null;
           this.currentObjectColor = null;
+          this.currentObjectName = null;
 
           this.renderer.render(this.scene, this.camera);
         }
@@ -237,13 +263,6 @@ export default {
         callback();
       }
     },
-    animate: function () {
-      var that = this;
-
-      requestAnimationFrame(that.animate);
-      TWEEN.update();
-      that.renderer.render(that.scene, that.camera);
-    },
     getCylID: function (cylName) {
       var id = this.meshArr.findIndex(function (item) {
         return item.name == cylName;
@@ -277,25 +296,8 @@ export default {
           color: cylColor,
         });
 
-        mat.emissiveIntensity = 0.25;
-
-        if (this.customerData.temperature === "hot") {
-          mat.emissive.setHex(0xf44336);
-          this.fallBackColor = 0xf44336;
-          this.fallBackIntensity = 0.25;
-        }
-
-        if (this.customerData.temperature === "less hot") {
-          mat.emissive.setHex(0xf06292);
-          this.fallBackColor = 0xf06292;
-          this.fallBackIntensity = 0.25;
-        }
-
-        if (this.customerData.temperature === "cold") {
-          mat.emissive.setHex(0x2196f3);
-          this.fallBackColor = 0x2196f3;
-          this.fallBackIntensity = 0.25;
-        }
+        // TODO: unnecessary runs global
+        this.setEmissiveColor(mat, false, true);
 
         var mesh = new THREE.Mesh(geo, mat);
 
@@ -309,6 +311,26 @@ export default {
       } else {
         return null;
       }
+    },
+    setEmissiveColor: function (material, render = false, global = true) {
+      const temp = this.customerData.temperature;
+      let color = "";
+
+      const colors = {
+        hot: 0xf44336,
+        "less hot": 0xf06292,
+        cold: 0x2196f3,
+      };
+
+      material.emissive.setHex(colors[temp]);
+      material.emissiveIntensity = 0.25;
+
+      if (global) {
+        this.fallBackColor = colors[temp];
+        this.fallBackIntensity = 0.25;
+      }
+
+      render && this.renderer.render(this.scene, this.camera);
     },
     createStack: function (render = true) {
       var that = this;
@@ -406,6 +428,49 @@ export default {
       this.meshArr = newArr;
 
       return group;
+    },
+    updateStack: function (id) {},
+    scaleCyl: function (cylID, cylHeight, callback = false) {
+      var meshes, renderer, scene, camera;
+      var that = this;
+
+      meshes = that.meshArr;
+      renderer = that.renderer;
+      scene = that.scene;
+      camera = that.camera;
+
+      /*
+       *
+       *  Order of Operation
+       *  1. Get current scale
+       *  2. Get current height
+       *  3. use new height to find new scale
+       *
+       *  Visual of Ratio
+       *
+       *
+       *	oldScale     oldHeight
+       *	--------  =  ---------
+       *	newScale     newHeight
+       *
+       *  newScale = (oldScale / oldHeight) * newHeight
+       *  newHeight = newScale / (oldScale / oldHeight)
+       *
+       *
+       */
+
+      var oldHeight = meshes[cylID].geometry.parameters.height;
+      var newHeight = cylHeight > 0 ? cylHeight : 0.000001;
+      var ogScale = meshes[cylID].scale.y;
+      var newScale = (ogScale / oldHeight) * newHeight;
+      // var tween;
+
+      if (newHeight != oldHeight) {
+        meshes[cylID].scale.y = newScale;
+        meshes[cylID].position.y = newHeight / 2;
+        meshes[cylID].geometry.parameters.height = newHeight;
+        that.renderer.render(that.scene, that.camera);
+      }
     },
   },
 };
