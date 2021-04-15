@@ -26,27 +26,19 @@ export default {
   name: "Base",
   computed: {
     drinksArr: function() {
-      var arr = [];
-      var drinks = this.$store.state.drinks;
-
-      for (var i = 0; i < drinks.length; i++) {
-        arr.push({
-          text: drinks[i].name,
-          value: drinks[i].name
-        });
-      }
-
-      return arr;
+      const drinks = this.$store.state.drinks;
+      return drinks.map(({ name }) => ({ text: name, value: name }));
     },
-    ...mapState(["customerData"])
+    ...mapState(["customerData"]),
   },
   methods: {
     ...mapActions(["updateBaseDrink"]),
-    chooseDrink: function(e) {
-      this.updateBaseDrink(e).then(() => {
-        this.$router.push({ name: "customize" });
-      });
-    }
-  }
+
+    chooseDrink: function(drink) {
+      this.updateBaseDrink(drink).then(() =>
+        this.$router.push({ name: "customize" })
+      );
+    },
+  },
 };
 </script>

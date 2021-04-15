@@ -4,7 +4,7 @@
       <v-col cols="7">
         <div class="overline">Last Step</div>
         <v-divider class="mb-3"></v-divider>
-        <v-content class="mb-10">
+        <v-main class="mb-10">
           <div class="display-1 red--text mb-3">
             We'll send you an email with your drink image and a little surprise.
           </div>
@@ -17,8 +17,8 @@
               <v-icon class="md-2" right>mdi-arrow-right</v-icon>
             </v-btn>
           </div>
-        </v-content>
-        <v-content class="mb-10">
+        </v-main>
+        <v-main class="mb-10">
           <div class="overline">Get your drink</div>
           <v-divider class="mb-3"></v-divider>
           <v-sheet elevation="1" class="px-8 pa-5 mb-5">
@@ -41,7 +41,7 @@
             dark
             >Submit</v-btn
           >
-        </v-content>
+        </v-main>
       </v-col>
       <v-spacer></v-spacer>
       <v-col cols="4">

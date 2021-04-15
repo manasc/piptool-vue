@@ -7,27 +7,27 @@ const routes = [
   {
     path: "/",
     name: "base",
-    component: () => import("../views/Base.vue")
+    component: () => import("../views/Base.vue"),
   },
   {
     path: "/customize",
     name: "customize",
-    component: () => import("../views/Customize.vue")
+    component: () => import("../views/Customize.vue"),
   },
   {
     path: "/name-it",
     name: "name-it",
-    component: () => import("../views/NameIt.vue")
+    component: () => import("../views/NameIt.vue"),
   },
   {
     path: "/thank-you",
     name: "thank-you",
-    component: () => import("../views/ThankYou.vue")
-  }
+    component: () => import("../views/ThankYou.vue"),
+  },
 ];
 
 const router = new VueRouter({
-  routes
+  routes,
 });
 
 export default router;

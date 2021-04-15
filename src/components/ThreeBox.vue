@@ -5,12 +5,10 @@
 <script>
 import { mapState } from "vuex";
 import * as THREE from "three";
-import TWEEN from "@tweenjs/tween.js";
 
 export default {
   name: "ThreeBox",
-
-  data: function() {
+  data: function () {
     return {
       animationDuration: 1000,
       drinks: this.allDrinks,
@@ -19,19 +17,22 @@ export default {
       canvas: null,
       plane: null,
       modifier: null,
-      lights: {
-        spot: null,
-        hemi: null
-      },
       renderer: null,
       scene: null,
       camera: null,
       multiplier: 10,
-      currentTween: null
+      currentTween: null,
+
+      // for interactivity
+      fallBackColor: null,
+      raycaster: null,
+      pointer: null,
+      currentObject: null,
+      currentObjectColor: null,
     };
   },
   computed: {
-    style: function() {
+    style: function () {
       return {
         canvas: {
           height: "30rem",
@@ -40,93 +41,173 @@ export default {
           backgroundColor: "rgba(0, 0, 0, 0.87)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
-        }
+          justifyContent: "center",
+        },
       };
     },
-    chosenDrink: function() {
+    chosenDrink: function () {
       var that = this;
       var drinkID = that.customerData.base;
 
       return that.drinks[drinkID];
     },
-    ...mapState(["appData", "customerData"])
+    ...mapState(["appData", "customerData"]),
   },
   watch: {
     "customerData.baseDrink.config": {
       deep: true,
-      handler: function(val, old) {
+      handler: function (val, old) {
         this.createStack();
-
-        // console.log(val.sweeteners.sugar);
-        // that.createStack(this.meshArr);
-      }
-    }
+      },
+    },
+    "customerData.temperature": {
+      handler: function (val, old) {
+        this.createStack();
+      },
+    },
   },
-  mounted: function() {
+  mounted: function () {
     /*
      *  KEEP THIS ORDER
      */
-    var that = this;
 
     // set up canvas
-    that.canvas = document.querySelector("#visualizer");
-    var canvasHeight = that.canvas.offsetHeight;
-    var canvasWidth = that.canvas.offsetWidth;
+    this.canvas = document.querySelector("#visualizer");
+    var canvasHeight = this.canvas.offsetHeight;
+    var canvasWidth = this.canvas.offsetWidth;
 
     // set up renderer
-    that.renderer = new THREE.WebGLRenderer({
-      antialias: true
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
     });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(canvasWidth, canvasHeight, true);
+    this.renderer.setClearColor(0xffffff, 1);
+    this.renderer.shadowMap.enabled = true;
 
-    // set up camera
-    that.camera = new THREE.PerspectiveCamera(
-      40,
-      canvasWidth / canvasHeight,
-      0.1,
-      10000
-    );
+    // add to dom
+    this.canvas.appendChild(this.renderer.domElement);
 
     // set up scene
-    that.scene = new THREE.Scene();
-
-    // set up lights
-    that.lights.spot = new THREE.SpotLight(0xffffff, 0.2, 0, 0.25);
-    that.lights.spot.castShadow = true;
-    that.lights.hemi = new THREE.HemisphereLight(0xffffff, 0xff3300);
+    this.scene = new THREE.Scene();
+    // this.scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
 
     // init scene
-    that.createStack(false);
+    this.createStack(false);
+
+    // set up lights
+    const light1 = new THREE.SpotLight(0xffffff);
+    light1.castShadow = true;
+    light1.intensity = 1;
+    light1.position.set(0, 2000, 2000);
+
+    // set up shadow
+    light1.castShadow = true;
+    light1.shadow.mapSize.width = 10000;
+    light1.shadow.mapSize.height = 10000;
+    light1.shadow.camera.near = 500;
+    light1.shadow.camera.far = 4000;
+    light1.shadow.camera.fov = 30;
+    light1.shadow.camera.focus = 30;
+    light1.lookAt(this.meshArr[0].position);
+
+    this.scene.add(light1);
+    // this.scene.add(new THREE.SpotLightHelper(light1, 5));
+
+    const light2 = new THREE.SpotLight(0xffffff);
+    light2.position.set(2000, 2000, 1000);
+    light2.intensity = 0.5;
+
+    this.scene.add(light2);
+    // this.scene.add(new THREE.SpotLightHelper(light2, 5));
 
     // create a plane
-    var planeGeometry = new THREE.PlaneBufferGeometry(3000, 3000);
-    var planeMaterial = new THREE.MeshStandardMaterial({ color: 0xf9f9f9 });
+    var planeGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+    var planeMaterial = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotateX(-1.5708);
-    // plane.translateY(-100);
+    plane.rotation.x = THREE.Math.degToRad(90);
+    // plane.castShadow = true;
     plane.receiveShadow = true;
-    that.scene.add(plane);
-
-    that.renderer.setSize(canvasWidth, canvasHeight, true);
-    that.renderer.setClearColor(0xf9f9f9, 1);
-    that.canvas.appendChild(that.renderer.domElement);
+    this.scene.add(plane);
 
     // set up camera
-    that.camera.position.set(700, 700, 500);
-    that.camera.lookAt(that.meshArr[that.meshArr.length - 1].position);
-    that.camera.position.set(700, 750, 500);
-    // that.camera.position.set(600, 600, 500);
-    // console.log(that.meshArr[that.meshArr.length - 1].position)
+    // this.camera = new THREE.PerspectiveCamera(
+    //   40,
+    //   canvasWidth / canvasHeight,
+    //   0.1,
+    //   10000,
+    // );
+    // this.camera.position.set(1000, 1000, 1000);
+    this.camera = new THREE.OrthographicCamera(
+      canvasWidth / -1.25,
+      canvasWidth / 1.25,
+      canvasHeight / 1,
+      canvasHeight / -1.5,
+      0,
+      6000,
+    );
+    this.camera.position.set(3000, 3000, 3000);
+    this.camera.lookAt(this.meshArr[0].position);
 
-    // create light
-    that.lights.spot.position.set(300, 1200, 1400);
+    // helpers
+    // this.scene.add(new THREE.AxesHelper(250));
 
-    that.scene.add(that.lights.spot, that.lights.hemi);
+    // init scene & render
+    this.renderer.render(this.scene, this.camera);
+    this.initRayCaster();
 
-    that.renderer.render(that.scene, that.camera);
+    window.addEventListener("resize", this.onWindowResize);
+    document.addEventListener("mousemove", this.onPointerMove, false);
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.onWindowResize);
   },
   methods: {
-    calcVolume: function(callback = false) {
+    initRayCaster: function () {
+      // set up interactivity
+      this.raycaster = new THREE.Raycaster();
+      this.pointer = new THREE.Vector2();
+    },
+    onPointerMove: function (event) {
+      event.preventDefault();
+
+      this.pointer.x = (event.offsetX / this.canvas.offsetWidth) * 2 - 1;
+      this.pointer.y = -(event.offsetY / this.canvas.offsetHeight) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.pointer, this.camera);
+      this.intersect = this.raycaster.intersectObjects(this.meshArr);
+
+      if (this.intersect.length > 0) {
+        if (this.intersect[0].object !== this.currentObject) {
+          // remove current object styling
+          if (this.currentObject) {
+            this.currentObject.material.emissive.setHex(this.fallBackColor);
+            this.currentObject.material.emissiveIntensity =
+              this.fallBackIntensity;
+          }
+
+          // set new object as current
+          this.currentObject = this.intersect[0].object;
+          this.currentObject.material.emissive.setHex(0xffffff);
+          this.currentObject.material.emissiveIntensity = 0.2;
+
+          this.renderer.render(this.scene, this.camera);
+        }
+      } else {
+        // clear
+        if (this.currentObject) {
+          this.currentObject.material.emissive.setHex(this.fallBackColor);
+          this.currentObject.material.emissiveIntensity =
+            this.fallBackIntensity;
+
+          this.currentObject = null;
+          this.currentObjectColor = null;
+
+          this.renderer.render(this.scene, this.camera);
+        }
+      }
+    },
+    calcVolume: function (callback = false) {
       /*
        * 1. Get drink size
        * 2. Get pump-size
@@ -141,9 +222,9 @@ export default {
       var ingredients = this.customerData.ingredients;
 
       // general ingredients
-      for (var type in ingredients) {
+      for (let type in ingredients) {
         if (type == "flavors" || type == "sweeteners") {
-          for (var subtype in ingredients[type]) {
+          for (let subtype in ingredients[type]) {
             ingredients[type][subtype].volume =
               ingredients[type][subtype].quantity * pumpSize;
           }
@@ -156,34 +237,70 @@ export default {
         callback();
       }
     },
-    animate: function() {
+    animate: function () {
       var that = this;
 
       requestAnimationFrame(that.animate);
       TWEEN.update();
       that.renderer.render(that.scene, that.camera);
     },
-    getCylID: function(cylName) {
-      var id = this.meshArr.findIndex(function(item) {
+    getCylID: function (cylName) {
+      var id = this.meshArr.findIndex(function (item) {
         return item.name == cylName;
       });
 
       return id;
     },
-    makeCyl: function(cylName, cylHeight, cylColor = "#FFFFFF") {
+    onWindowResize: function () {
+      this.canvas = document.querySelector("#visualizer");
+
+      this.renderer.setSize(
+        this.canvas.offsetWidth,
+        this.canvas.offsetHeight,
+        true,
+      );
+
+      this.camera.left = this.canvas.offsetWidth / -1.25;
+      this.camera.right = this.canvas.offsetWidth / 1.25;
+      this.camera.top = this.canvas.offsetHeight / 1;
+      this.camera.bottom = this.canvas.offsetHeight / -1.5;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.render(this.scene, this.camera);
+    },
+    makeCyl: function (cylName, cylHeight, cylColor = "#FFFFFF") {
       var that = this;
 
       if (cylHeight > 0) {
         var geo = new THREE.CylinderGeometry(150, 150, cylHeight, 40);
         var mat = new THREE.MeshPhongMaterial({
-          color: cylColor
+          color: cylColor,
         });
 
-        // mat.flatShading = true;
+        mat.emissiveIntensity = 0.25;
+
+        if (this.customerData.temperature === "hot") {
+          mat.emissive.setHex(0xf44336);
+          this.fallBackColor = 0xf44336;
+          this.fallBackIntensity = 0.25;
+        }
+
+        if (this.customerData.temperature === "less hot") {
+          mat.emissive.setHex(0xf06292);
+          this.fallBackColor = 0xf06292;
+          this.fallBackIntensity = 0.25;
+        }
+
+        if (this.customerData.temperature === "cold") {
+          mat.emissive.setHex(0x2196f3);
+          this.fallBackColor = 0x2196f3;
+          this.fallBackIntensity = 0.25;
+        }
 
         var mesh = new THREE.Mesh(geo, mat);
+
         mesh.castShadow = true;
-        mesh.receiveShadow = false;
+        // mesh.receiveShadow = true;
 
         mesh.name = cylName;
         mesh.position.y = cylHeight / 2;
@@ -193,7 +310,7 @@ export default {
         return null;
       }
     },
-    createStack: function(render = true) {
+    createStack: function (render = true) {
       var that = this;
       var arr = [];
 
@@ -209,57 +326,58 @@ export default {
           that.makeCyl(
             "water",
             that.customerData.baseDrink.config.espresso * 3,
-            that.appData.options.water.color
-          )
+            that.appData.options.water.color,
+          ),
         );
       } else {
         arr.push(
           that.makeCyl(
             "milk",
             that.customerData.baseDrink.config.espresso * 3,
-            that.appData.options.milk.color
-          )
+            that.appData.options.milk.color,
+          ),
         );
       }
+
       arr.push(
         that.makeCyl(
           "espresso",
           that.customerData.baseDrink.config.espresso * 1.5,
-          ingredients.espresso.color
+          ingredients.espresso.color,
         ),
         that.makeCyl(
           "chocolate",
           that.customerData.baseDrink.config.flavors.chocolate,
-          ingredients.flavors[0].color
+          ingredients.flavors[0].color,
         ),
         that.makeCyl(
           "caramel",
           that.customerData.baseDrink.config.flavors.caramel,
-          ingredients.flavors[1].color
+          ingredients.flavors[1].color,
         ),
         that.makeCyl(
           "vanilla",
           that.customerData.baseDrink.config.flavors.vanilla,
-          ingredients.flavors[2].color
+          ingredients.flavors[2].color,
         ),
         that.makeCyl(
           "sugarFreeVanilla",
           that.customerData.baseDrink.config.flavors.sugarFreeVanilla,
-          ingredients.flavors[3].color
+          ingredients.flavors[3].color,
         ),
         that.makeCyl(
           "sugar",
           that.customerData.baseDrink.config.sweeteners.sugar,
-          ingredients.sweeteners[0].color
+          ingredients.sweeteners[0].color,
         ),
         that.makeCyl(
           "stevia",
           that.customerData.baseDrink.config.sweeteners.stevia,
-          ingredients.sweeteners[1].color
-        )
+          ingredients.sweeteners[1].color,
+        ),
       );
 
-      var newArr = arr.filter(x => x != null);
+      var newArr = arr.filter((x) => x != null);
 
       var count = newArr.length;
       var group = new THREE.Group();
@@ -289,48 +407,6 @@ export default {
 
       return group;
     },
-    scaleCyl: function(cylID, cylHeight, callback = false) {
-      var meshes, renderer, scene, camera;
-      var that = this;
-
-      meshes = that.meshArr;
-      renderer = that.renderer;
-      scene = that.scene;
-      camera = that.camera;
-
-      /*
-       *
-       *  Order of Operation
-       *  1. Get current scale
-       *  2. Get current height
-       *  3. use new height to find new scale
-       *
-       *  Visual of Ratio
-       *
-       *
-       *	oldScale     oldHeight
-       *	--------  =  ---------
-       *	newScale     newHeight
-       *
-       *  newScale = (oldScale / oldHeight) * newHeight
-       *  newHeight = newScale / (oldScale / oldHeight)
-       *
-       *
-       */
-
-      var oldHeight = meshes[cylID].geometry.parameters.height;
-      var newHeight = cylHeight > 0 ? cylHeight : 0.000001;
-      var ogScale = meshes[cylID].scale.y;
-      var newScale = (ogScale / oldHeight) * newHeight;
-      // var tween;
-
-      if (newHeight != oldHeight) {
-        meshes[cylID].scale.y = newScale;
-        meshes[cylID].position.y = newHeight / 2;
-        meshes[cylID].geometry.parameters.height = newHeight;
-        that.renderer.render(that.scene, that.camera);
-      }
-    }
-  }
+  },
 };
 </script>

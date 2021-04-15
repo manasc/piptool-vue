@@ -10,11 +10,11 @@
           @change="chooseDrink"
         ></v-select>
         <template v-if="customerData.baseDrink">
-          <v-content class="mt-2 mb-10">
+          <v-main class="mt-2 mb-10">
             <div class="overline">Description</div>
             <v-divider class="mb-2"></v-divider>
             <div class="body-1">{{ customerData.baseDrink.description }}</div>
-          </v-content>
+          </v-main>
 
           <!-- Main Options -->
           <div class="overline">Main Customizations</div>
@@ -115,7 +115,7 @@
                   </span>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <v-content class="mb-2">
+                  <v-main class="mb-2">
                     <v-slider
                       v-model="customerData.baseDrink.config[type]"
                       :max="32"
@@ -125,7 +125,7 @@
                       thumb-label
                       thumb-size="24"
                     ></v-slider>
-                  </v-content>
+                  </v-main>
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </template>
@@ -133,7 +133,7 @@
         </template>
       </v-col>
       <v-col cols="12" md="6" class="order-1 order-md-2">
-        <v-content v-if="customerData.baseDrink" class="mb-5 text-center  ">
+        <v-main v-if="customerData.baseDrink" class="mb-5 text-center">
           <span class="overline mr-3"> Tags:</span>
           <v-chip
             v-for="tag in customerData.baseDrink.tags"
@@ -145,11 +145,11 @@
           >
             {{ tag }}
           </v-chip>
-        </v-content>
-        <v-content class=""><three-box></three-box></v-content>
+        </v-main>
+        <v-main :style="threeBoxStyle"><three-box></three-box></v-main>
       </v-col>
       <v-col cols="12" md="3" class="order-3 order-md-3">
-        <v-content v-if="customerData.baseDrink">
+        <v-main v-if="customerData.baseDrink">
           <template
             v-for="type in customerData.baseDrink.customizations.ingredients"
           >
@@ -169,7 +169,7 @@
                   </v-expansion-panel-header>
 
                   <v-expansion-panel-content>
-                    <v-content class="mb-2">
+                    <v-main class="mb-2">
                       <v-slider
                         v-model="customerData.baseDrink.config[type][sub]"
                         :max="32"
@@ -179,17 +179,17 @@
                         thumb-label
                         thumb-size="24"
                       ></v-slider>
-                    </v-content>
+                    </v-main>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               </v-expansion-panels>
             </div>
           </template>
-        </v-content>
+        </v-main>
       </v-col>
     </v-row>
-    <v-row class="text-center ">
-      <v-content class="d-flex mt-10">
+    <v-row class="text-center">
+      <v-main class="d-flex mt-10">
         <span class="mr-2 headline">Everything looks perfect?</span>
         <v-btn
           rounded
@@ -204,7 +204,7 @@
           Name Your Drink
           <v-icon right dark class="ml-3">mdi-arrow-right</v-icon>
         </v-btn>
-      </v-content>
+      </v-main>
     </v-row>
   </div>
 </template>
@@ -217,27 +217,34 @@ export default {
   name: "Customize",
   components: { ThreeBox },
   computed: {
-    drinksArr: function() {
+    drinksArr: function () {
       var arr = [];
       var drinks = this.$store.state.drinks;
 
       for (var i = 0; i < drinks.length; i++) {
         arr.push({
           text: drinks[i].name,
-          value: drinks[i].name
+          value: drinks[i].name,
         });
       }
 
       return arr;
     },
-    ...mapState(["appData", "customerData", "drinks"])
+    ...mapState(["appData", "customerData", "drinks"]),
   },
+  data: () => ({
+    threeBoxStyle: {
+      border: "solid 1px #cccccc",
+      borderRadius: "5px",
+      overflow: "hidden",
+    },
+  }),
   methods: {
     ...mapActions(["updateBaseDrink", "updateSize"]),
-    chooseDrink: function(e) {
+    chooseDrink: function (e) {
       this.updateBaseDrink(e);
     },
-    chipStyle: function(e) {
+    chipStyle: function (e) {
       var drk, bg;
 
       switch (e) {
@@ -260,9 +267,9 @@ export default {
 
       return {
         background: bg,
-        dark: drk
+        dark: drk,
       };
-    }
-  }
+    },
+  },
 };
 </script>

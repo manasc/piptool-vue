@@ -11,24 +11,21 @@ export default new Vuex.Store({
     appData,
     drinks,
     customerData: {
-    //   baseDrink: drinks[3],
-    //   size: "medium",
-    //   temperature: "hot"
-      baseDrink: null,
-      size: null,
-      temperature: null
-    }
+      baseDrink: drinks[3],
+      size: "medium",
+      temperature: "hot",
+    },
   },
   mutations: {
     updateBaseDrink({ customerData, drinks }, val) {
-      var baseDrink = drinks.find(drink => drink.name == val);
+      var baseDrink = drinks.find((drink) => drink.name === val);
       customerData.baseDrink = baseDrink;
       customerData.size = baseDrink.customizations.sizes[0];
       customerData.temperature = baseDrink.customizations.temperatures[0];
     },
     updateSize({ customerData }, val) {
       customerData.size = val;
-    }
+    },
   },
   actions: {
     updateBaseDrink({ commit }, val) {
@@ -42,7 +39,7 @@ export default new Vuex.Store({
         commit("updateSize", val);
         resolve();
       });
-    }
+    },
   },
-  modules: {}
+  modules: {},
 });
