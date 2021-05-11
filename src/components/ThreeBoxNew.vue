@@ -4,6 +4,29 @@
       {{ currentObjectName }}
     </div>
     <div id="visualizer" :style="style.canvas"></div>
+    <div class="text-subtitle-2" :style="bottomObjectStyle">
+      <!-- <span class="mr-3">{{
+        customerData.size[0].toUpperCase()
+      }}</span> -->
+      <v-icon
+        v-if="customerData.temperature === 'cold'"
+        :style="{ color: 'skyblue' }"
+        >mdi-snowflake</v-icon
+      >
+      <v-icon
+        v-if="
+          customerData.temperature === 'hot' ||
+          customerData.temperature === 'less hot'
+        "
+        :style="{ color: 'orange' }"
+        >mdi-fire</v-icon
+      >
+      <v-icon
+        v-if="customerData.temperature === 'hot'"
+        :style="{ color: 'orange' }"
+        >mdi-fire</v-icon
+      >
+    </div>
   </div>
 </template>
 
@@ -35,6 +58,13 @@ export default {
       hoverObjectStyle: {
         position: "absolute",
         top: "2rem",
+      },
+      bottomObjectStyle: {
+        position: "absolute",
+        bottom: "1rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       },
 
       // for interactivity
@@ -69,6 +99,11 @@ export default {
     ...mapState(["appData", "customerData"]),
   },
   watch: {
+    "customerData.size": {
+      handler: function (val, old) {
+        this.createStack();
+      },
+    },
     "customerData.baseDrink.config": {
       deep: true,
       handler: function (val, old) {
@@ -158,7 +193,7 @@ export default {
     //   0.1,
     //   10000,
     // );
-    // this.camera.position.set(1000, 1000, 1000);
+    // this.camera.position.set(900, 900, 500);
     this.camera = new THREE.OrthographicCamera(
       canvasWidth / -1.25,
       canvasWidth / 1.25,
@@ -168,9 +203,10 @@ export default {
       10000,
     );
     this.camera.position.set(3000, 3000, 3000);
+
     this.camera.lookAt(
       this.meshArr[0].position.x,
-      this.meshArr[0].position.y + 110,
+      this.meshArr[0].position.y + 130,
       this.meshArr[0].position.z,
     );
 
@@ -218,7 +254,6 @@ export default {
           this.currentObject.material.emissiveIntensity = 0.25;
 
           this.renderer.render(this.scene, this.camera);
-
           this.canvas.style.cursor = "pointer";
         }
       } else {
@@ -244,6 +279,7 @@ export default {
        *
        * USE ML
        */
+
       var info = this.appData;
       // var drinkSize = info.drinkSize[this.customerData.size].ml;
       var pumpSize = info.pumpSize.ml;
@@ -341,6 +377,14 @@ export default {
 
       this.scene.remove(this.scene.getObjectByName("thisGroup"));
 
+      const sizes = {
+        small: 0.6,
+        medium: 1,
+        large: 1.2,
+      };
+
+      const multiplier = sizes[that.customerData.size];
+
       var ingredients = that.appData.ingredients;
 
       if (
@@ -350,7 +394,7 @@ export default {
         arr.push(
           that.makeCyl(
             "water",
-            that.customerData.baseDrink.config.espresso * 3,
+            that.customerData.baseDrink.config.espresso * 3 * multiplier,
             that.appData.options.water.color,
           ),
         );
@@ -358,7 +402,7 @@ export default {
         arr.push(
           that.makeCyl(
             "milk",
-            that.customerData.baseDrink.config.espresso * 3,
+            that.customerData.baseDrink.config.espresso * 3 * multiplier,
             that.appData.options.milk.color,
           ),
         );
@@ -367,37 +411,38 @@ export default {
       arr.push(
         that.makeCyl(
           "espresso",
-          that.customerData.baseDrink.config.espresso * 1.5,
+          that.customerData.baseDrink.config.espresso * 1.5 * multiplier,
           ingredients.espresso.color,
         ),
         that.makeCyl(
           "chocolate",
-          that.customerData.baseDrink.config.flavors.chocolate,
+          that.customerData.baseDrink.config.flavors.chocolate * multiplier,
           ingredients.flavors[0].color,
         ),
         that.makeCyl(
           "caramel",
-          that.customerData.baseDrink.config.flavors.caramel,
+          that.customerData.baseDrink.config.flavors.caramel * multiplier,
           ingredients.flavors[1].color,
         ),
         that.makeCyl(
           "vanilla",
-          that.customerData.baseDrink.config.flavors.vanilla,
+          that.customerData.baseDrink.config.flavors.vanilla * multiplier,
           ingredients.flavors[2].color,
         ),
         that.makeCyl(
           "sugarFreeVanilla",
-          that.customerData.baseDrink.config.flavors.sugarFreeVanilla,
+          that.customerData.baseDrink.config.flavors.sugarFreeVanilla *
+            multiplier,
           ingredients.flavors[3].color,
         ),
         that.makeCyl(
           "sugar",
-          that.customerData.baseDrink.config.sweeteners.sugar,
+          that.customerData.baseDrink.config.sweeteners.sugar * multiplier,
           ingredients.sweeteners[0].color,
         ),
         that.makeCyl(
           "stevia",
-          that.customerData.baseDrink.config.sweeteners.stevia,
+          that.customerData.baseDrink.config.sweeteners.stevia * multiplier,
           ingredients.sweeteners[1].color,
         ),
       );
@@ -432,8 +477,37 @@ export default {
 
       return group;
     },
-    updateStack: function (id) {},
-    scaleCyl: function (cylID, cylHeight, callback = false) {
+    updateStack: function (id) {
+      // get ratio
+      //   const newHeight =
+      //     this.meshArr[0].geometry.parameters.height +
+      //     this.meshArr[0].geometry.parameters.height * 0.1;
+
+      //   const ratio = this.meshArr[0].geometry.parameters.height / newHeight + 1;
+
+      //   // resize and render
+      //   this.meshArr[0].scale.y = this.meshArr[0].scale.y + 1;
+      //   this.renderer.render(this.scene, this.camera);
+
+      //   console.log(this.meshArr[0]);
+
+      //   // update values and reset
+      //   this.meshArr[0].scale.y = 1;
+      //   this.meshArr[0].geometry.parameters.height = newHeight;
+
+      console.log(this.meshArr[1]);
+      this.scaleCyl(0, this.meshArr[0].geometry.parameters.height + 10, false);
+
+      let totalHeight = 0;
+      this.meshArr.forEach((c) => {
+        c.position.y = totalHeight;
+        console.log(totalHeight);
+        totalHeight += c.geometry.parameters.height;
+      });
+
+      this.renderer.render(this.scene, this.camera);
+    },
+    scaleCyl: function (cylID, cylHeight, render = false, callback = false) {
       var meshes, renderer, scene, camera;
       var that = this;
 
@@ -443,6 +517,7 @@ export default {
       camera = that.camera;
 
       /*
+       *
        *
        *  Order of Operation
        *  1. Get current scale
@@ -472,7 +547,7 @@ export default {
         meshes[cylID].scale.y = newScale;
         meshes[cylID].position.y = newHeight / 2;
         meshes[cylID].geometry.parameters.height = newHeight;
-        that.renderer.render(that.scene, that.camera);
+        render && that.renderer.render(that.scene, that.camera);
       }
     },
   },

@@ -5,8 +5,8 @@
     "description": "Briggo's signature espresso mixed with lush, freshly-steamed milk and caramel.",
     "tags": ["hot", "caffeinated", "latte"],
     "customizations": {
-      "sizes": ["medium", "large"],
-      "temperatures": ["hot", "less hot"],
+      "sizes": ["small", "medium", "large"],
+      "temperatures": ["cold", "less hot", "hot"],
       "options": ["size", "temperature", "milk", "espresso"],
       "ingredients": ["flavors", "sweeteners"]
     },
@@ -30,8 +30,8 @@
     "description": "Gourmet chocolate, espresso, and freshly-steamed milk.",
     "tags": ["hot", "caffeinated", "mocha"],
     "customizations": {
-      "sizes": ["medium", "large"],
-      "temperatures": ["hot", "less hot"],
+      "sizes": ["small", "medium", "large"],
+      "temperatures": ["cold", "less hot", "hot"],
 
       "options": ["size", "temperature", "milk", "espresso"],
       "ingredients": ["flavors", "sweeteners"]
@@ -56,8 +56,8 @@
     "description": "Delicious Briggo espresso topped with expertly-frothed milk.",
     "tags": ["hot", "caffeinated", "cappuccino"],
     "customizations": {
-      "sizes": ["medium"],
-      "temperatures": ["hot", "less hot"],
+      "sizes": ["small", "medium", "large"],
+      "temperatures": ["cold", "less hot", "hot"],
       "options": ["size", "temperature", "milk", "espresso"],
       "ingredients": ["flavors", "sweeteners"]
     },
@@ -81,8 +81,8 @@
     "description": "Briggo espresso mixed with hot water; slightly stronger than regular coffee.",
     "tags": ["hot", "caffeinated", "americano"],
     "customizations": {
-      "sizes": ["medium"],
-      "temperatures": ["hot", "less hot"],
+      "sizes": ["small", "medium", "large"],
+      "temperatures": ["cold", "less hot", "hot"],
       "options": ["size", "temperature", "espresso"],
       "ingredients": ["flavors", "sweeteners"]
     },
@@ -106,8 +106,8 @@
     "description": "Briggo's smooth and lively blend of high-grown Latin American coffees.",
     "tags": ["hot", "caffeinated", "black_coffee"],
     "customizations": {
-      "sizes": ["medium", "large"],
-      "temperatures": ["hot", "less hot"],
+      "sizes": ["small", "medium", "large"],
+      "temperatures": ["cold", "less hot", "hot"],
       "options": ["size", "temperature", "espresso"],
       "ingredients": ["flavors", "sweeteners"]
     },

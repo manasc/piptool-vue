@@ -27,9 +27,9 @@
                 <!-- Sizes -->
                 <v-expansion-panel-header>
                   {{ type | capitalize }}
-                  <span class="red--text font-weight-bold ml-2">{{
-                    customerData.size
-                  }}</span>
+                  <span class="red--text font-weight-bold ml-2">
+                    {{ customerData.size }}
+                  </span>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <v-chip-group
@@ -211,7 +211,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import ThreeBox from "../components/ThreeBox";
+import ThreeBox from "../components/ThreeBoxNew";
 
 export default {
   name: "Customize",
