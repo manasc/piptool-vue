@@ -4,13 +4,13 @@ import VueRouter from "vue-router";
 Vue.use(VueRouter);
 
 const routes = [
+  // {
+  //   path: "/",
+  //   name: "base",
+  //   component: () => import("../views/Base.vue"),
+  // },
   {
     path: "/",
-    name: "base",
-    component: () => import("../views/Base.vue"),
-  },
-  {
-    path: "/customize",
     name: "customize",
     component: () => import("../views/Customize.vue"),
   },

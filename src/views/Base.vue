@@ -25,7 +25,7 @@ import { mapState, mapActions } from "vuex";
 export default {
   name: "Base",
   computed: {
-    drinksArr: function() {
+    drinksArr: function () {
       const drinks = this.$store.state.drinks;
       return drinks.map(({ name }) => ({ text: name, value: name }));
     },
@@ -34,9 +34,9 @@ export default {
   methods: {
     ...mapActions(["updateBaseDrink"]),
 
-    chooseDrink: function(drink) {
+    chooseDrink: function (drink) {
       this.updateBaseDrink(drink).then(() =>
-        this.$router.push({ name: "customize" })
+        this.$router.push({ name: "customize" }),
       );
     },
   },
