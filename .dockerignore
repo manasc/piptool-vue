@@ -1,4 +1,5 @@
 .browserslistrc
+.github
 .eslintrc.js
 .prettierrc
 babel.config.js

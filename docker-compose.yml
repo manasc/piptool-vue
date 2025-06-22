@@ -5,9 +5,6 @@ services:
       - 8080:8080
     volumes:
       - .:/usr/src/app
-      - dependencies:/usr/src/app/node_modules
+      - /usr/src/app/node_modules
     working_dir: /usr/src/app
     command: npm start
-
-volumes:
-  dependencies:
