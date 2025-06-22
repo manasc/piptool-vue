@@ -1,4 +1,5 @@
-// module.exports = {
-//   transpileDependencies: ["vuetify"],
-//   publicPath: "https://code.manasc.com/piptool/"
-// };
+module.exports = {
+    publicPath: process.env.NODE_ENV === 'production'
+        ? "https://manasc.github.io/piptool-vue/"
+        : "/",
+};
